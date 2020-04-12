@@ -10,7 +10,7 @@ How to use
 
 From docker hub:
 
-``
+```
 ~$ docker run nuxion/jupyterlab 
 
 ```
