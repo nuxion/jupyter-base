@@ -1,0 +1,6 @@
+#!/bin/sh
+# instala una extesion para tener un indice en base a la notebook
+jupyter labextension install @jupyterlab/toc
+
+#jupyter labextension install jupyterlab-drawio
+
