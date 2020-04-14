@@ -1,4 +1,4 @@
-FROM python:3.7-buster
+FROM python:3.7-alpine
 
 LABEL maintener="Xavier Petit <nuxion@gmail.com>"
 #RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
@@ -29,23 +29,29 @@ ENV PACKAGES="\
 	tcl \
 	tk \
 	libzmq \
+	nodejs \
+	npm \
 "
 # libssl1.0 \ error missing dependency
 COPY jupyter.tar /tmp/
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		python3-dev libczmq-dev libczmq4 libzmq3-dev \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& apt-get install -y --no-install-recommends curl \
-	&& curl -sL https://deb.nodesource.com/setup_12.x | bash - \
-	&& apt-get update && apt-get install -y nodejs \
-	&& useradd jupyter \
+RUN  apk --no-cache add --virtual .builddeps \
+	 musl-dev zeromq-dev openblas-dev freetype-dev pkgconfig gfortran \
+	g++ gcc lapack-dev \
+	&& apk --no-cache add python3-dev lapack libstdc++ \
+	&& ln -s /usr/include/locale.h /usr/include/xlocale.h \
+	&& apk --no-cache add $PACKAGES \
+	&& adduser -Dhsk jupyter \
 	&& mkdir -p /home/jupyter \
 	&& tar xvf /tmp/jupyter.tar -C /home/jupyter/ \
+	&& pip3 install --upgrade pip \
 	&& pip3 install --no-cache-dir -r /home/jupyter/requirements.txt \
 	&& pip3 install --no-cache-dir $PYTHON_PACKAGES \
     	&& chown -R jupyter:jupyter /usr/local/share/jupyter \
     	&& chown -R jupyter:jupyter /home/jupyter \
-	&& rm /tmp/jupyter.tar 
+	&& rm /tmp/jupyter.tar \
+	&& apk del .builddeps \
+	&& rm -rf /var/cache/apk/*
+
 USER jupyter
 WORKDIR /home/jupyter/
 RUN /home/jupyter/src/postBuild

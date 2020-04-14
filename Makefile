@@ -36,7 +36,7 @@ publish:
 	docker push $(DOCKER_REGISTRY)/nuxion/jupyterlab:$(VERSION)
 	docker push $(DOCKER_REGISTRY)/nuxion/jupyterlab:latest
 
-.PHONY: relase
+.PHONY: release
 release: tar copy build publish clean
 
 
